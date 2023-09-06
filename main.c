@@ -1,0 +1,159 @@
+#include "shell.h"
+
+/**
+ * process_input - Process user input from a file.
+ *
+ * @input_source: Pointer to the input file.
+ *
+ * Return: No value
+ */
+void process_input(FILE *input_source)
+{
+	char *prompt, **tokens = NULL;
+
+	while (1)
+	{
+		prompt = get_prompt(input_source);
+		if (prompt == NULL)
+			continue;
+
+		tokens = tokenize_string(prompt);
+		if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
+		{
+			free(prompt);
+			free_tokens(tokens);
+			exit(0);
+		}
+
+		if (strcmp(tokens[0], "execute") == 0)
+		{
+			if (tokens[1] != NULL)
+				execute_command(tokens);
+		}
+		else
+		{
+			exec_prompt(tokens);
+			free_tokens(tokens);
+		}
+
+		free(prompt);
+	}
+}
+
+/**
+ * execute_command - Execute a command (if specified).
+ *
+ * @tokens: Array of tokens parsed from input.
+ *
+ * Return: No value
+ */
+void execute_command(char **tokens)
+{
+	if (tokens[1] != NULL)
+		execute_commands(tokens[1]);
+}
+
+/**
+ * execute_file_commands - Execute commands from a file.
+ *
+ * @filename: Name of the file containing commands.
+ *
+ * Return: No value
+ */
+void execute_file_commands(const char *filename)
+{
+	FILE *input_file;
+
+	input_file = fopen(filename, "r");
+	if (input_file == NULL)
+	{
+		perror("fopen");
+		exit(1);
+	}
+
+	process_input(input_file);
+	fclose(input_file);
+}
+
+/**
+ * run_interactive_mode - Run the shell in interactive mode.
+ *
+ * Return: No value
+ */
+void run_interactive_mode(void)
+{
+	char **tokens, *line = NULL;
+
+	while (1)
+	{
+		line = get_prompt(stdin);
+		if (line == NULL)
+			continue;
+
+		tokens = tokenize_string(line);
+		if (tokens[0] == NULL)
+		{
+			free(line);
+			free_tokens(tokens);
+			continue;
+		}
+
+		if (strcmp(COMMAND_EXIT, tokens[0]) == 0)
+		{
+			free(line);
+			free_tokens(tokens);
+			break;
+		}
+		else if (strcmp(COMMAND_EXECUTE, tokens[0]) == 0)
+			execute_file_commands(tokens[1]);
+		else
+		{
+			exec_prompt(tokens);
+			free_tokens(tokens);
+		}
+
+		free(line);
+	}
+}
+
+/**
+ * main - Entry point of the shell program.
+ *
+ * Return: Always 0 if successful.
+ */
+int main(void)
+{
+	char *prompt, **tokens = NULL;
+	CommandInfo_t command_info = COMMAND_INFO_INIT;
+
+	populate_local_environment(&command_info);
+
+	while (1)
+	{
+		prompt = get_prompt(stdin);
+		if (prompt == NULL)
+			continue;
+
+		tokens = tokenize_string(prompt);
+
+		if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
+		{
+			free(prompt);
+			free_tokens(tokens);
+			exit(0);
+		}
+
+		if (tokens != NULL && tokens[0] != NULL)
+		{
+			if (strcmp("env", tokens[0]) == 0)
+				print_environment(&command_info);
+			else
+				exec_prompt(tokens);
+		}
+
+		free_tokens(tokens);
+		free(prompt);
+	}
+
+	return (0);
+}
