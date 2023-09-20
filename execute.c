@@ -23,7 +23,7 @@ int execute_commands(const char *filename)
 
 	while ((prompt = get_prompt(input_file)) != NULL)
 	{
-		tokens = tokenize_string(prompt);
+		tokenize_string(prompt, &tokens);
 		if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
 		{
 			free(prompt);
@@ -33,11 +33,12 @@ int execute_commands(const char *filename)
 
 		result = exec_prompt(tokens);
 
-		free(prompt);
-		free_tokens(tokens);
 	}
 
+	free(prompt);
+	free_tokens(tokens);
 	fclose(input_file);
+
 	return (result);
 }
 
@@ -54,5 +55,6 @@ void free_tokens(char **tokens)
 
 	for (i = 0; tokens[i] != NULL; i++)
 		free(tokens[i]);
+
 	free(tokens);
 }

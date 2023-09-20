@@ -27,8 +27,9 @@ void print_list_str(list_t *node)
 
 list_t *add_node_end(list_t **head, const char *str)
 {
-	list_t *new_node = malloc(sizeof(list_t));
+	list_t *new_node, *current;
 
+	new_node = malloc(sizeof(list_t));
 	if (new_node == NULL)
 		return (NULL);
 
@@ -46,14 +47,14 @@ list_t *add_node_end(list_t **head, const char *str)
 		*head = new_node;
 	else
 	{
-		list_t *current = *head;
+		current = *head;
 
 		while (current->next != NULL)
 			current = current->next;
 
 		current->next = new_node;
 	}
-
+	free_list(current);
 	return (new_node);
 }
 
@@ -85,4 +86,25 @@ char *starts_with(const char *str, const char *prefix)
 		return ((char *)(str + prefix_len));
 
 	return (NULL);
+}
+
+/**
+ * free_list - Function that frees the memory in linked lists
+ *
+ * @head: this is the pointer to the first item in the list
+ *
+ * Return: No value
+ */
+void free_list(list_t *head)
+{
+	list_t *current, *temp;
+
+	current = head;
+	while (current != NULL)
+	{
+		temp = current;
+		current = current->next;
+		free(temp->str);
+		free(temp);
+	}
 }

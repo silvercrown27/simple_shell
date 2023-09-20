@@ -33,7 +33,7 @@ char *get_environment_variable(CommandInfo_t *command_info, const char *name)
 
 		node = node->next;
 	}
-
+	free(value);
 	return (NULL);
 }
 
@@ -72,8 +72,10 @@ int unset_environment_variable(CommandInfo_t *command_info)
 		eputs("Too few arguments.\n");
 		return (1);
 	}
-	for (i = 1; i <= command_info->argc; i++)
+	for (i = 1; i < command_info->argc; i++)
+	{
 		unsetenv(command_info->argv[i]);
+	}
 
 	return (0);
 }

@@ -50,6 +50,7 @@ void print_list_str(list_t *node);
 list_t *add_node_end(list_t **head, const char *str);
 void eputs(const char *str);
 char *starts_with(const char *str, const char *prefix);
+void free_list(list_t *head);
 
 /* Env.c */
 int print_environment(CommandInfo_t *command_info);
@@ -65,7 +66,7 @@ int execute_commands(const char *filename);
 
 
 /* shell.c*/
-char **tokenize_string(const char *str);
+char **tokenize_string(const char *str, char ***tokens);
 char *get_prompt(FILE *input_file);
 char *find_executable(const char *command);
 int exec_prompt(char **args);
@@ -74,7 +75,6 @@ int exec_prompt(char **args);
 /* main.c */
 void process_input(FILE *input_file);
 void run_interactive_mode(void);
-void execute_command(char **tokens);
 void execute_file_commands(const char *filename);
 
 #endif

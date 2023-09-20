@@ -17,7 +17,7 @@ void process_input(FILE *input_source)
 		if (prompt == NULL)
 			break;
 
-		tokens = tokenize_string(prompt);
+		tokenize_string(prompt, &tokens);
 		if (tokens == NULL || tokens[0] == NULL)
 		{
 			free(prompt);
@@ -34,29 +34,18 @@ void process_input(FILE *input_source)
 		if (strcmp(tokens[0], "execute") == 0)
 		{
 			if (tokens[1] != NULL)
-				execute_command(tokens);
+				execute_commands(tokens[1]);
 		}
 		else
 		{
 			exec_prompt(tokens);
 			free_tokens(tokens);
 		}
-
 		free(prompt);
+		free_tokens(tokens);
 	}
-}
-
-/**
- * execute_command - Execute a command (if specified).
- *
- * @tokens: Array of tokens parsed from input.
- *
- * Return: No value
- */
-void execute_command(char **tokens)
-{
-	if (tokens[1] != NULL)
-		execute_commands(tokens[1]);
+	free(prompt);
+	free_tokens(tokens);
 }
 
 /**
@@ -88,7 +77,8 @@ void execute_file_commands(const char *filename)
  */
 void run_interactive_mode(void)
 {
-	char **tokens, *line = NULL;
+	char **tokens = NULL;
+	char *line = NULL;
 
 	while (1)
 	{
@@ -96,7 +86,7 @@ void run_interactive_mode(void)
 		if (line == NULL)
 			continue;
 
-		tokens = tokenize_string(line);
+		tokenize_string(line, &tokens);
 		if (tokens[0] == NULL)
 		{
 			free(line);
@@ -119,7 +109,11 @@ void run_interactive_mode(void)
 		}
 
 		free(line);
+		free_tokens(tokens);
+
 	}
+	free(line);
+	free_tokens(tokens);
 }
 
 /**
@@ -137,9 +131,7 @@ int main(int argc, char *argv[])
 	populate_local_environment(&command_info);
 
 	if (argc == 2)
-	{
 		execute_file_commands(argv[1]);
-	}
 	else
 	{
 		while (1)
@@ -148,7 +140,7 @@ int main(int argc, char *argv[])
 			if (prompt == NULL)
 				continue;
 
-			tokens = tokenize_string(prompt);
+			tokenize_string(prompt, &tokens);
 
 			if (tokens != NULL && tokens[0] != NULL)
 			{
@@ -169,6 +161,8 @@ int main(int argc, char *argv[])
 			free(prompt);
 		}
 	}
+	free_tokens(tokens);
+	free(prompt);
 
 	return (0);
 }
