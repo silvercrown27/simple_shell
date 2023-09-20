@@ -15,14 +15,20 @@ void process_input(FILE *input_source)
 	{
 		prompt = get_prompt(input_source);
 		if (prompt == NULL)
-			continue;
+			break;
 
 		tokens = tokenize_string(prompt);
+		if (tokens == NULL || tokens[0] == NULL)
+		{
+			free(prompt);
+			continue;
+		}
+
 		if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
 		{
 			free(prompt);
 			free_tokens(tokens);
-			exit(0);
+			break;
 		}
 
 		if (strcmp(tokens[0], "execute") == 0)
@@ -118,41 +124,50 @@ void run_interactive_mode(void)
 
 /**
  * main - Entry point of the shell program.
+ * @argc: Number of arguments given to the program
+ * @argv: Arguments given
  *
  * Return: Always 0 if successful.
  */
-int main(void)
+int main(int argc, char *argv[])
 {
 	char *prompt, **tokens = NULL;
 	CommandInfo_t command_info = COMMAND_INFO_INIT;
 
 	populate_local_environment(&command_info);
 
-	while (1)
+	if (argc == 2)
 	{
-		prompt = get_prompt(stdin);
-		if (prompt == NULL)
-			continue;
-
-		tokens = tokenize_string(prompt);
-
-		if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
+		execute_file_commands(argv[1]);
+	}
+	else
+	{
+		while (1)
 		{
-			free(prompt);
+			prompt = get_prompt(stdin);
+			if (prompt == NULL)
+				break;
+
+			tokens = tokenize_string(prompt);
+
+			if (tokens != NULL && tokens[0] != NULL)
+			{
+				if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
+				{
+					free(prompt);
+					free_tokens(tokens);
+					break;
+				}
+
+				if (strcmp("env", tokens[0]) == 0)
+					print_environment(&command_info);
+				else
+					exec_prompt(tokens);
+			}
+
 			free_tokens(tokens);
-			exit(0);
+			free(prompt);
 		}
-
-		if (tokens != NULL && tokens[0] != NULL)
-		{
-			if (strcmp("env", tokens[0]) == 0)
-				print_environment(&command_info);
-			else
-				exec_prompt(tokens);
-		}
-
-		free_tokens(tokens);
-		free(prompt);
 	}
 
 	return (0);
