@@ -44,8 +44,6 @@ void process_input(FILE *input_source)
 		free(prompt);
 		free_tokens(tokens);
 	}
-	free(prompt);
-	free_tokens(tokens);
 }
 
 /**
@@ -101,19 +99,18 @@ void run_interactive_mode(void)
 			break;
 		}
 		else if (strcmp(COMMAND_EXECUTE, tokens[0]) == 0)
+		{
 			execute_file_commands(tokens[1]);
+			free(line);
+			free_tokens(tokens);
+		}
 		else
 		{
 			exec_prompt(tokens);
+			free(line);
 			free_tokens(tokens);
 		}
-
-		free(line);
-		free_tokens(tokens);
-
 	}
-	free(line);
-	free_tokens(tokens);
 }
 
 /**
@@ -161,8 +158,7 @@ int main(int argc, char *argv[])
 			free(prompt);
 		}
 	}
-	free_tokens(tokens);
-	free(prompt);
+	free_local_environment(&command_info);
 
 	return (0);
 }

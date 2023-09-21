@@ -72,6 +72,12 @@ char *find_executable(const char *command);
 int exec_prompt(char **args);
 
 
+/* free_memory.c */
+void free_local_environment(CommandInfo_t *cmd_info);
+void free_list(list_t *head);
+void free_tokens(char **tokens);
+
+
 /* main.c */
 void process_input(FILE *input_file);
 void run_interactive_mode(void);

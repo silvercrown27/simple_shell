@@ -91,7 +91,9 @@ int populate_local_environment(CommandInfo_t *command_info)
 	size_t i;
 
 	for (i = 0; environ[i]; i++)
+	{
 		add_node_end(&(command_info->local_environment), environ[i]);
+	}
 
 	return (0);
 }

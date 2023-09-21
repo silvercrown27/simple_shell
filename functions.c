@@ -54,7 +54,6 @@ list_t *add_node_end(list_t **head, const char *str)
 
 		current->next = new_node;
 	}
-	free_list(current);
 	return (new_node);
 }
 
@@ -86,25 +85,4 @@ char *starts_with(const char *str, const char *prefix)
 		return ((char *)(str + prefix_len));
 
 	return (NULL);
-}
-
-/**
- * free_list - Function that frees the memory in linked lists
- *
- * @head: this is the pointer to the first item in the list
- *
- * Return: No value
- */
-void free_list(list_t *head)
-{
-	list_t *current, *temp;
-
-	current = head;
-	while (current != NULL)
-	{
-		temp = current;
-		current = current->next;
-		free(temp->str);
-		free(temp);
-	}
 }

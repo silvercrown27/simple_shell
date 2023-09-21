@@ -42,19 +42,3 @@ int execute_commands(const char *filename)
 	return (result);
 }
 
-/**
- * free_tokens - function that frees allocated memory.
- *
- * @tokens: this is the variable to be freed
- *
- * Return: No value
- */
-void free_tokens(char **tokens)
-{
-	int i;
-
-	for (i = 0; tokens[i] != NULL; i++)
-		free(tokens[i]);
-
-	free(tokens);
-}
