@@ -15,13 +15,12 @@ char **tokenize_string(const char *str, char ***tokens)
 	char *token, *str_cp;
 	int count = 0;
 
-	str_cp = strdup(str);
-	if (str_cp == NULL)
+	if (str == NULL)
 	{
-		perror("strdup");
-		return (NULL);
+		return ('\0');
 	}
 
+	str_cp = strdup(str);
 	*tokens = (char **)malloc(sizeof(char *) * MAX_TOKENS);
 	if (*tokens == NULL)
 	{

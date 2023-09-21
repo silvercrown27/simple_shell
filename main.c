@@ -134,8 +134,6 @@ int main(int argc, char *argv[])
 		while (1)
 		{
 			prompt = get_prompt(stdin);
-			if (prompt == NULL)
-				continue;
 
 			tokenize_string(prompt, &tokens);
 
