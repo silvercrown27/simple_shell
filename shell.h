@@ -80,7 +80,6 @@ void free_tokens(char **tokens);
 
 /* main.c */
 void process_input(FILE *input_file);
-void run_interactive_mode(void);
 void execute_file_commands(const char *filename);
 
 #endif

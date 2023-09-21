@@ -69,51 +69,6 @@ void execute_file_commands(const char *filename)
 }
 
 /**
- * run_interactive_mode - Run the shell in interactive mode.
- *
- * Return: No value
- */
-void run_interactive_mode(void)
-{
-	char **tokens = NULL;
-	char *line = NULL;
-
-	while (1)
-	{
-		line = get_prompt(stdin);
-		if (line == NULL)
-			continue;
-
-		tokenize_string(line, &tokens);
-		if (tokens[0] == NULL)
-		{
-			free(line);
-			free_tokens(tokens);
-			continue;
-		}
-
-		if (strcmp(COMMAND_EXIT, tokens[0]) == 0)
-		{
-			free(line);
-			free_tokens(tokens);
-			break;
-		}
-		else if (strcmp(COMMAND_EXECUTE, tokens[0]) == 0)
-		{
-			execute_file_commands(tokens[1]);
-			free(line);
-			free_tokens(tokens);
-		}
-		else
-		{
-			exec_prompt(tokens);
-			free(line);
-			free_tokens(tokens);
-		}
-	}
-}
-
-/**
  * main - Entry point of the shell program.
  * @argc: Number of arguments given to the program
  * @argv: Arguments given
@@ -129,15 +84,14 @@ int main(int argc, char *argv[])
 
 	if (argc == 2)
 		execute_file_commands(argv[1]);
-	else
+	else if (isatty(STDIN_FILENO))
 	{
 		while (1)
 		{
 			prompt = get_prompt(stdin);
 			if (prompt == NULL)
-				break;
+				continue;
 			tokenize_string(prompt, &tokens);
-
 			if (tokens != NULL && tokens[0] != NULL)
 			{
 				if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
@@ -152,12 +106,13 @@ int main(int argc, char *argv[])
 				else
 					exec_prompt(tokens);
 			}
-
 			free_tokens(tokens);
 			free(prompt);
 		}
 	}
-	free_local_environment(&command_info);
+	else
+		process_input(stdin);
 
+	free_local_environment(&command_info);
 	return (0);
 }
