@@ -55,17 +55,22 @@ char **tokenize_string(const char *str, char ***tokens)
 /**
  * get_prompt - Reads and returns user input as the prompt.
  * @input_file: file to contain input
+ * @print_prompt: value that represents the current Environment
  *
  * Return: Pointer to the input string.
  */
-char *get_prompt(FILE *input_file)
+char *get_prompt(FILE *input_file, int print_prompt)
 {
 	char *line = NULL;
-	size_t bufsize;
+	size_t bufsize = 0;
 	ssize_t chars_read;
 
-	printf("cisfun$ ");
-	bufsize = 0;
+	if (print_prompt)
+	{
+		printf("cisfun$ ");
+		fflush(stdout);
+	}
+
 	chars_read = getline(&line, &bufsize, input_file);
 
 	if (chars_read == -1)
@@ -84,6 +89,7 @@ char *get_prompt(FILE *input_file)
 
 	return (line);
 }
+
 
 
 /**
@@ -146,7 +152,6 @@ int exec_prompt(char **args)
 {
 	pid_t pid;
 	int status;
-	char *full_path, *env_path;
 
 	pid = fork();
 	if (pid < 0)
@@ -156,20 +161,10 @@ int exec_prompt(char **args)
 	}
 	else if (pid == 0)
 	{
-		if (strcmp(args[0], "env") == 0)
-		{
-			env_path = find_executable("env");
-			execve(env_path, args, NULL);
-			perror("execve");
-			free(env_path);
-			exit(2);
-		}
 		if (strchr(args[0], '/') == NULL)
 		{
-			full_path = find_executable(args[0]);
-			execve(full_path, args, NULL);
-			perror("execve");
-			free(full_path);
+			execvp(args[0], args);
+			perror("execvp");
 			exit(2);
 		}
 		else

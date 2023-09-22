@@ -7,7 +7,6 @@
  *
  * Return: 0 on success, else -1
  */
-
 int execute_commands(const char *filename)
 {
 	char *prompt, **tokens = NULL;
@@ -21,7 +20,7 @@ int execute_commands(const char *filename)
 		return (1);
 	}
 
-	while ((prompt = get_prompt(input_file)) != NULL)
+	while ((prompt = get_prompt(input_file, 0)) != NULL)
 	{
 		tokenize_string(prompt, &tokens);
 		if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
@@ -32,7 +31,6 @@ int execute_commands(const char *filename)
 		}
 
 		result = exec_prompt(tokens);
-
 	}
 
 	free(prompt);
@@ -41,4 +39,3 @@ int execute_commands(const char *filename)
 
 	return (result);
 }
-

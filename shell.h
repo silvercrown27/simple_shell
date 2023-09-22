@@ -67,7 +67,7 @@ int execute_commands(const char *filename);
 
 /* shell.c*/
 char **tokenize_string(const char *str, char ***tokens);
-char *get_prompt(FILE *input_file);
+char *get_prompt(FILE *input_file, int print_prompt);
 char *find_executable(const char *command);
 int exec_prompt(char **args);
 
@@ -79,7 +79,7 @@ void free_tokens(char **tokens);
 
 
 /* main.c */
-void process_input(FILE *input_file);
+void process_input(FILE *input_source, int interactive);
 void execute_file_commands(const char *filename);
 
 #endif

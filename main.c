@@ -1,46 +1,45 @@
 #include "shell.h"
+#include "shell.h"
 
 /**
- * process_input - Process user input from a file.
+ * process_input - Process user input from a file or stdin.
  *
- * @input_source: Pointer to the input file.
+ * @input_source: Pointer to the input file or stdin.
+ * @interactive: Flag indicating whether the shell is running interactively.
  *
- * Return: No value
+ * Return: No value.
  */
-void process_input(FILE *input_source)
+void process_input(FILE *input_source, int interactive)
 {
 	char *prompt, **tokens = NULL;
 
-	while (1)
+	prompt = get_prompt(input_source, interactive);
+	if (prompt == NULL)
+		exit(1);
+
+	tokenize_string(prompt, &tokens);
+	if (tokens == NULL || tokens[0] == NULL)
 	{
-		prompt = get_prompt(input_source);
-		if (prompt == NULL)
-			break;
+		free(prompt);
+		exit(0);
+	}
 
-		tokenize_string(prompt, &tokens);
-		if (tokens == NULL || tokens[0] == NULL)
-		{
-			free(prompt);
-			continue;
-		}
+	if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
+	{
+		free(prompt);
+		free_tokens(tokens);
+		exit(0);
+	}
 
-		if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
-		{
-			free(prompt);
-			free_tokens(tokens);
-			break;
-		}
-
-		if (strcmp(tokens[0], "execute") == 0)
-		{
-			if (tokens[1] != NULL)
-				execute_commands(tokens[1]);
-		}
-		else
-		{
-			exec_prompt(tokens);
-			free_tokens(tokens);
-		}
+	if (strcmp(tokens[0], "execute") == 0)
+	{
+		if (tokens[1] != NULL)
+			execute_commands(tokens[1]);
+	}
+	else
+	{
+		exec_prompt(tokens);
+		free_tokens(tokens);
 	}
 }
 
@@ -62,14 +61,15 @@ void execute_file_commands(const char *filename)
 		exit(1);
 	}
 
-	process_input(input_file);
+	process_input(input_file, 0);
 	fclose(input_file);
 }
 
+
 /**
  * main - Entry point of the shell program.
- * @argc: Number of arguments given to the program
- * @argv: Arguments given
+ * @argc: Number of arguments given to the program.
+ * @argv: Arguments given.
  *
  * Return: Always 0 if successful.
  */
@@ -81,14 +81,17 @@ int main(int argc, char *argv[])
 	populate_local_environment(&command_info);
 
 	if (argc == 2)
+	{
 		execute_file_commands(argv[1]);
+	}
 	else if (isatty(STDIN_FILENO))
 	{
 		while (1)
 		{
-			prompt = get_prompt(stdin);
+			prompt = get_prompt(stdin, 1);
 			if (prompt == NULL)
 				continue;
+
 			tokenize_string(prompt, &tokens);
 			if (tokens != NULL && tokens[0] != NULL)
 			{
@@ -109,8 +112,7 @@ int main(int argc, char *argv[])
 		}
 	}
 	else
-		process_input(stdin);
-
+		process_input(stdin, 0);
 	free_local_environment(&command_info);
 	return (0);
 }
