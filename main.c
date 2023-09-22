@@ -41,8 +41,6 @@ void process_input(FILE *input_source)
 			exec_prompt(tokens);
 			free_tokens(tokens);
 		}
-		free(prompt);
-		free_tokens(tokens);
 	}
 }
 
