@@ -29,7 +29,7 @@ int execute_commands(const char *filename)
 			free_tokens(tokens);
 			exit(2);
 		}
-
+		
 		result = exec_prompt(tokens);
 	}
 

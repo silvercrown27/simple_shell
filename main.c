@@ -26,9 +26,9 @@ void process_input(FILE *input_source, int interactive)
 
 	if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
 	{
+		execute_commands(tokens[1]);
 		free(prompt);
 		free_tokens(tokens);
-		exit(0);
 	}
 
 	if (strcmp(tokens[0], "execute") == 0)
@@ -36,6 +36,7 @@ void process_input(FILE *input_source, int interactive)
 		if (tokens[1] != NULL)
 			execute_commands(tokens[1]);
 	}
+
 	else
 	{
 		exec_prompt(tokens);
@@ -64,7 +65,6 @@ void execute_file_commands(const char *filename)
 	process_input(input_file, 0);
 	fclose(input_file);
 }
-
 
 /**
  * main - Entry point of the shell program.
@@ -101,8 +101,8 @@ int main(int argc, char *argv[])
 					free_tokens(tokens);
 					break;
 				}
-
-				if (strcmp("env", tokens[0]) == 0)
+				if (strcmp("/usr/bin/env", prompt) == 0 ||
+					strcmp("/bin/env", prompt) == 0 || strcmp("env", prompt) == 0)
 					print_environment(&command_info);
 				else
 					exec_prompt(tokens);

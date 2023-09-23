@@ -152,6 +152,7 @@ int exec_prompt(char **args)
 {
 	pid_t pid;
 	int status;
+	char *full_path, *env_path;
 
 	pid = fork();
 	if (pid < 0)
@@ -161,17 +162,27 @@ int exec_prompt(char **args)
 	}
 	else if (pid == 0)
 	{
+		if (strcmp(args[0], "env") == 0)
+		{
+			env_path = find_executable("env");
+			execve(env_path, args, NULL);
+			perror("execve");
+			free(env_path);
+			exit(0);
+		}
 		if (strchr(args[0], '/') == NULL)
 		{
-			execvp(args[0], args);
-			perror("execvp");
-			exit(2);
+			full_path = find_executable(args[0]);
+			execve(full_path, args, NULL);
+			perror("execve");
+			free(full_path);
+			exit(0);
 		}
 		else
 		{
 			execve(args[0], args, NULL);
 			perror("execve");
-			exit(2);
+			exit(0);
 		}
 	}
 	else
