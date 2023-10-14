@@ -1,5 +1,42 @@
 #include "shell.h"
-#include "shell.h"
+
+/**
+ * get_prompt - Reads and returns user input as the prompt.
+ * @input_file: file to contain input
+ * @print_prompt: value that represents the current Environment
+ *
+ * Return: Pointer to the input string.
+ */
+char *get_prompt(FILE *input_file, int interactive)
+{
+    char *line = NULL;
+    size_t bufsize = 0;
+    ssize_t chars_read;
+
+    if (interactive)
+    {
+        printf("cisfun$ ");
+        fflush(stdout);
+    }
+
+    chars_read = getline(&line, &bufsize, input_file);
+
+    if (chars_read == -1)
+    {
+        if (feof(input_file))
+            return (NULL);
+    }
+
+    if (chars_read == 1 && line[0] == '\n')
+    {
+        free(line);
+        return (NULL);
+    }
+
+    line[strcspn(line, "\n")] = '\0';
+
+    return (line);
+}
 
 /**
  * process_input - Process user input from a file or stdin.
@@ -11,59 +48,30 @@
  */
 void process_input(FILE *input_source, int interactive)
 {
-	char *prompt, **tokens = NULL;
+    char *prompt, **tokens = NULL;
 
-	prompt = get_prompt(input_source, interactive);
-	if (prompt == NULL)
-		exit(1);
+    prompt = get_prompt(input_source, interactive);
 
-	tokenize_string(prompt, &tokens);
-	if (tokens == NULL || tokens[0] == NULL)
-	{
-		free(prompt);
-		exit(0);
-	}
+    if (prompt == NULL)
+        exit(1);
+    
+    tokenize_string(prompt, &tokens);
+    if (tokens == NULL || tokens[0] == NULL)
+    {
+        free(prompt);
+        exit(0);
+    }
 
-	if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
-	{
-		execute_commands(tokens[1]);
-		free(prompt);
-		free_tokens(tokens);
-	}
-
-	if (strcmp(tokens[0], "execute") == 0)
-	{
-		if (tokens[1] != NULL)
-			execute_commands(tokens[1]);
-	}
-
-	else
-	{
-		exec_prompt(tokens);
-		free_tokens(tokens);
-	}
-}
-
-/**
- * execute_file_commands - Execute commands from a file.
- *
- * @filename: Name of the file containing commands.
- *
- * Return: No value
- */
-void execute_file_commands(const char *filename)
-{
-	FILE *input_file;
-
-	input_file = fopen(filename, "r");
-	if (input_file == NULL)
-	{
-		perror("fopen");
-		exit(1);
-	}
-
-	process_input(input_file, 0);
-	fclose(input_file);
+    if (strcmp("execute", tokens[0]) == 0)
+    {
+        if (tokens[1] != NULL)
+            execute_commands(tokens[1]);
+    }
+    else
+    {
+        exec_prompt(tokens);
+        free_tokens(tokens);
+    }
 }
 
 /**
@@ -75,44 +83,44 @@ void execute_file_commands(const char *filename)
  */
 int main(int argc, char *argv[])
 {
-	char *prompt, **tokens = NULL;
-	CommandInfo_t command_info = COMMAND_INFO_INIT;
+    char *prompt, **tokens = NULL;
+    CommandInfo_t command_info = COMMAND_INFO_INIT;
 
-	populate_local_environment(&command_info);
+    poppulate_local_environment(&command_info);
 
-	if (argc == 2)
-	{
-		execute_file_commands(argv[1]);
-	}
-	else if (isatty(STDIN_FILENO))
-	{
-		while (1)
-		{
-			prompt = get_prompt(stdin, 1);
-			if (prompt == NULL)
+    if (argc == 2)
+    {
+        execute_file_commands(argv[1]);
+        exit(0);
+    }
+    else if (isatty(STDIN_FILENO))
+    {
+        while (1)
+        {
+            prompt = get_prompt(stdin, 1);
+            if (prompt == NULL)
 				continue;
-
-			tokenize_string(prompt, &tokens);
-			if (tokens != NULL && tokens[0] != NULL)
-			{
-				if (strcmp("exit", tokens[0]) == 0 || strcmp("-1", tokens[0]) == 0)
-				{
-					free(prompt);
-					free_tokens(tokens);
-					break;
-				}
-				if (strcmp("/usr/bin/env", prompt) == 0 ||
-					strcmp("/bin/env", prompt) == 0 || strcmp("env", prompt) == 0)
+            
+            tokenize_string(prompt, &tokens);
+            if (tokens != NULL && tokens[0] != NULL)
+            {
+                if (strcmp("exit", tokens[0]) == 0)
+                    {
+                        free(prompt);
+                        free_tokens(tokens);
+                        break;
+                    }
+                if (strcmp("/usr/bin/env", prompt) == 0 || strcmp("/bin/env", prompt) == 0 || strcmp("env", prompt) == 0)
 					print_environment(&command_info);
-				else
-					exec_prompt(tokens);
-			}
-			free_tokens(tokens);
-			free(prompt);
-		}
-	}
-	else
+                else
+                    exec_prompt(tokens);
+            }
+            free_tokens(tokens);
+            free(prompt);
+        }
+    }
+    else
 		process_input(stdin, 0);
-	free_local_environment(&command_info);
-	return (0);
+    free_local_environment(&command_info);
+    return (0);
 }

@@ -11,24 +11,23 @@
  *
  * Return: no value
  */
-
 void free_local_environment(CommandInfo_t *cmd_info)
 {
-	list_t *current, *next;
+    list_t *current, *next;
 
-	if (cmd_info == NULL || cmd_info->local_environment == NULL)
-		return;
+    if (cmd_info == NULL || cmd_info->local_environment == NULL)
+        return;
+    
+    current = cmd_info->local_environment;
+    while (current != NULL)
+    {
+        next = current->next;
+        free(current->str);
+        free(current);
+        current = next;
+    }
 
-	current = cmd_info->local_environment;
-	while (current != NULL)
-	{
-		next = current->next;
-		free(current->str);
-		free(current);
-		current = next;
-	}
-
-	cmd_info->local_environment = NULL;
+    cmd_info->local_environment = NULL;
 }
 
 /**
@@ -43,13 +42,13 @@ void free_list(list_t *head)
 	list_t *current, *temp;
 
 	current = head;
-	while (current != NULL)
-	{
-		temp = current;
-		current = current->next;
-		free(temp->str);
-		free(temp);
-	}
+    while (current != NULL)
+    {
+        temp = current;
+        current = current->next;
+        free(temp->str);
+        free(temp);
+    }
 }
 
 /**
@@ -61,10 +60,11 @@ void free_list(list_t *head)
  */
 void free_tokens(char **tokens)
 {
-	int i;
+    int i;
 
-	for (i = 0; tokens[i] != NULL; i++)
-		free(tokens[i]);
-
-	free(tokens);
+    for (i = 0; tokens[i] != NULL; i++)
+    {
+        free(tokens[i]);
+    }
+    free(tokens);
 }

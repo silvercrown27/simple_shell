@@ -8,9 +8,8 @@
  */
 int print_environment(CommandInfo_t *command_info)
 {
-	print_list_str(command_info->local_environment);
-
-	return (0);
+    print_list_str(command_info->local_environment);
+    return (0);
 }
 
 /**
@@ -22,19 +21,20 @@ int print_environment(CommandInfo_t *command_info)
  */
 char *get_environment_variable(CommandInfo_t *command_info, const char *name)
 {
-	list_t *node = command_info->local_environment;
-	char *value;
+    list_t *node = command_info->local_environment;
+    char *value;
 
-	while (node)
-	{
-		value = starts_with(node->str, name);
-		if (value && *value)
-			return (value);
+    while (node)
+    {
+        value = starts_with(node->str, name);
 
-		node = node->next;
-	}
-	free(value);
-	return (NULL);
+        if (value && *value)
+            return (value);
+        
+        node = node->next;
+    }
+    free(value);
+    return (NULL);
 }
 
 /**
@@ -46,15 +46,16 @@ char *get_environment_variable(CommandInfo_t *command_info, const char *name)
  */
 int set_environment_variable(CommandInfo_t *command_info)
 {
-	if (command_info->argc != 3)
-	{
-		eputs("Incorrect number of arguments\n");
-		return (1);
-	}
-	if (setenv(command_info->argv[1], command_info->argv[2], 1) == 0)
-		return (0);
+    if (command_info->argc == 3)
+    {
+        eputs("Incorrect number of args.\n");
+        return (1);
+    }
 
-	return (1);
+    if (setenv(command_info->argv[1], command_info->argv[2], 1) == 0)
+        return (0);
+    
+    return (1);
 }
 
 /**
@@ -65,19 +66,18 @@ int set_environment_variable(CommandInfo_t *command_info)
  */
 int unset_environment_variable(CommandInfo_t *command_info)
 {
-	int i;
+    int i;
 
-	if (command_info->argc == 1)
-	{
-		eputs("Too few arguments.\n");
-		return (1);
-	}
-	for (i = 1; i < command_info->argc; i++)
-	{
-		unsetenv(command_info->argv[i]);
-	}
+    if (command_info->argc == 1)
+    {
+        eputs("Too few args.\n");
+        return (1);
+    }
 
-	return (0);
+    for (i = 0; command_info->argc; i++)
+        unsetenv(command_info->argv[i]);
+    
+    return (0);
 }
 
 /**
@@ -86,14 +86,15 @@ int unset_environment_variable(CommandInfo_t *command_info)
  *
  * Return: 0 on success.
  */
-int populate_local_environment(CommandInfo_t *command_info)
+int poppulate_local_environment(CommandInfo_t *command_info)
 {
-	size_t i;
+    size_t i;
 
-	for (i = 0; environ[i]; i++)
-	{
-		add_node_end(&(command_info->local_environment), environ[i]);
-	}
+    for (i = 0; environ[i]; i++)
+    {
+        add_node_end(&(command_info->local_environment), environ[i]);
+    }
 
-	return (0);
+    return (0);
 }
+

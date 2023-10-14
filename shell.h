@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -25,8 +25,8 @@ extern char **environ;
  */
 typedef struct list_t
 {
-	char *str;
-	struct list_t *next;
+    char *str;
+    struct list_t *next;
 } list_t;
 
 /**
@@ -38,49 +38,47 @@ typedef struct list_t
  */
 typedef struct
 {
-	int argc;
-	char **argv;
-	list_t *local_environment;
+    int argc;
+    char **argv;
+    list_t *local_environment;
 } CommandInfo_t;
 
 #define COMMAND_INFO_INIT {0, NULL, NULL}
 
-/* Function prototypes */
+/* functions.c */
 void print_list_str(list_t *node);
 list_t *add_node_end(list_t **head, const char *str);
 void eputs(const char *str);
 char *starts_with(const char *str, const char *prefix);
-void free_list(list_t *head);
 
-/* Env.c */
+
+/* env.c */
 int print_environment(CommandInfo_t *command_info);
 char *get_environment_variable(CommandInfo_t *command_info, const char *name);
 int set_environment_variable(CommandInfo_t *command_info);
 int unset_environment_variable(CommandInfo_t *command_info);
-int populate_local_environment(CommandInfo_t *command_info);
+int poppulate_local_environment(CommandInfo_t *command_info);
 
 
-/* Execute.c*/
-void free_tokens(char **tokens);
+/* execute.c*/
+void execute_file_commands(const char *filename);
+int exec_prompt(char **args);
+char *find_executable(const char *command);
 int execute_commands(const char *filename);
 
 
-/* shell.c*/
-char **tokenize_string(const char *str, char ***tokens);
-char *get_prompt(FILE *input_file, int print_prompt);
-char *find_executable(const char *command);
-int exec_prompt(char **args);
-
-
-/* free_memory.c */
+/* free.c */
 void free_local_environment(CommandInfo_t *cmd_info);
 void free_list(list_t *head);
 void free_tokens(char **tokens);
 
 
+/* shell.c */
+char **tokenize_string(const char *str, char ***tokens);
+
+
 /* main.c */
+char *get_prompt(FILE *input_file, int interactive);
 void process_input(FILE *input_source, int interactive);
-void execute_file_commands(const char *filename);
 
 #endif
-
